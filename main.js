@@ -47,67 +47,49 @@ let variable = 1234;
 // define adapter class wich will be used for communication with controller
 class MyAdapter extends utils.Adapter {
     constructor(options) {
-        let adapterOptions = {
-            // name has to be set and has to be equal to adapters folder name and main file name excluding extension
-            name: adapterName,
-
-            // is called when adapter shuts down - callback has to be called under any circumstances!
-            unload: this._unload.bind(this),
-
-            // is called if a subscribed object changes
-            objectChange: this._objectChange.bind(this),
-
-            // is called if a subscribed state changes
-            stateChange: this._stateChange.bind(this),
-
-            // Some message was sent to adapter instance over message box. Used by email, pushover, text2speech, ...
-            message: this._message.bind(this),
-
-            // is called when databases are connected and adapter received configuration.
-            // start here!
-            ready: this._ready.bind(this)
-        }
-
-        super(Object.assign(adapterOptions, options));
+        Object.assign(this, options)
+        super(this);
     }
 
-    _unload(callback) {
+    get name() { return adapterName; }
+
+    unload(callback) {
         try {
-            adapter.log.info('cleaned everything up...');
+            this.log.info('cleaned everything up...');
             callback();
         } catch (e) {
             callback();
         }
     }
 
-    _objectChange(id, obj) {
+    objectChange(id, obj) {
         // Warning, obj can be null if it was deleted
-        adapter.log.info('objectChange ' + id + ' ' + JSON.stringify(obj));
+        this.log.info('objectChange ' + id + ' ' + JSON.stringify(obj));
     }
 
-    _stateChange(id, state) {
+    stateChange(id, state) {
         // Warning, state can be null if it was deleted
-        adapter.log.info('stateChange ' + id + ' ' + JSON.stringify(state));
+        this.log.info('stateChange ' + id + ' ' + JSON.stringify(state));
 
         // you can use the ack flag to detect if it is status (true) or command (false)
         if (state && !state.ack) {
-            adapter.log.info('ack is not set!');
+            this.log.info('ack is not set!');
         }
     }
 
-    _message(obj) {
+    message(obj) {
         if (typeof obj === 'object' && obj.message) {
             if (obj.command === 'send') {
                 // e.g. send email or pushover or whatever
                 console.log('send command');
 
                 // Send response in callback if required
-                if (obj.callback) adapter.sendTo(obj.from, obj.command, 'Message received', obj.callback);
+                if (obj.callback) this.sendTo(obj.from, obj.command, 'Message received', obj.callback);
             }
         }
     }
 
-    _ready() {
+    ready() {
         // The adapters config (in the instance object everything under the attribute "native") is accessible via
         // adapter.config:
         this.log.info('config test1: ' + this.config.test1);
