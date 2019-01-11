@@ -50,20 +50,20 @@ class MyAdapter extends utils.Adapter {
 		super({ ...options, name: adapterName });
 
         // is called when adapter shuts down - callback has to be called under any circumstances!
-        on('unload', this._unload);
+        this.on('unload', this._unload);
 
         // is called if a subscribed object changes
-        on('objectChange', this._objectChange);
+        this.on('objectChange', this._objectChange);
 
         // is called if a subscribed state changes
-        on('stateChange', this._stateChange);
+        this.on('stateChange', this._stateChange);
 
         // Some message was sent to adapter instance over message box. Used by email, pushover, text2speech, ...
-        on('message', this._message);
+        this.on('message', this._message);
 
         // is called when databases are connected and adapter received configuration.
         // start here!
-        on('ready', this._ready);
+        this.on('ready', this._ready);
     }
 
     _unload(callback) {
