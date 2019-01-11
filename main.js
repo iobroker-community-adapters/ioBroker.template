@@ -47,33 +47,28 @@ let variable = 1234;
 // define adapter class wich will be used for communication with controller
 class MyAdapter extends utils.Adapter {
     constructor(options) {
-        let adapterOptions = {
-            // name has to be set and has to be equal to adapters folder name and main file name excluding extension
-            name: adapterName,
+		super({ ...options, name: adapterName });
 
-            // is called when adapter shuts down - callback has to be called under any circumstances!
-            unload: this._unload.bind(this),
+        // is called when adapter shuts down - callback has to be called under any circumstances!
+        on('unload', this._unload);
 
-            // is called if a subscribed object changes
-            objectChange: this._objectChange.bind(this),
+        // is called if a subscribed object changes
+        on('objectChange', this._objectChange);
 
-            // is called if a subscribed state changes
-            stateChange: this._stateChange.bind(this),
+        // is called if a subscribed state changes
+        on('stateChange', this._stateChange);
 
-            // Some message was sent to adapter instance over message box. Used by email, pushover, text2speech, ...
-            message: this._message.bind(this),
+        // Some message was sent to adapter instance over message box. Used by email, pushover, text2speech, ...
+        on('message', this._message);
 
-            // is called when databases are connected and adapter received configuration.
-            // start here!
-            ready: this._ready.bind(this)
-        }
-
-        super(Object.assign(adapterOptions, options));
+        // is called when databases are connected and adapter received configuration.
+        // start here!
+        on('ready', this._ready);
     }
 
     _unload(callback) {
         try {
-            adapter.log.info('cleaned everything up...');
+            this.log.info('cleaned everything up...');
             callback();
         } catch (e) {
             callback();
@@ -82,16 +77,16 @@ class MyAdapter extends utils.Adapter {
 
     _objectChange(id, obj) {
         // Warning, obj can be null if it was deleted
-        adapter.log.info('objectChange ' + id + ' ' + JSON.stringify(obj));
+        this.log.info('objectChange ' + id + ' ' + JSON.stringify(obj));
     }
 
     _stateChange(id, state) {
         // Warning, state can be null if it was deleted
-        adapter.log.info('stateChange ' + id + ' ' + JSON.stringify(state));
+        this.log.info('stateChange ' + id + ' ' + JSON.stringify(state));
 
         // you can use the ack flag to detect if it is status (true) or command (false)
         if (state && !state.ack) {
-            adapter.log.info('ack is not set!');
+            this.log.info('ack is not set!');
         }
     }
 
@@ -102,7 +97,7 @@ class MyAdapter extends utils.Adapter {
                 console.log('send command');
 
                 // Send response in callback if required
-                if (obj.callback) adapter.sendTo(obj.from, obj.command, 'Message received', obj.callback);
+                if (obj.callback) this.sendTo(obj.from, obj.command, 'Message received', obj.callback);
             }
         }
     }
